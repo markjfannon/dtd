@@ -77,13 +77,8 @@ class startScreen(main):
         self.screen_item = self.initscreen
         self.startButton=Button(button_surface, 200, 100, "Start!")
 
+#actually calls startScreen class (about time lol)
 menuScreen=startScreen(600,600,3,3,3)
-
-
-#screen = pg.display.set_mode((800,800))
-#pg.display.set_caption("Test")
-#button = Button(button_surface, 200, 100, "Click Me!")
-
 
 #game loop, checks for updates and events
 while True:
