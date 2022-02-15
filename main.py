@@ -33,8 +33,8 @@ def nameCheck(name):
     namelist.close()
     for item in names:
         if name==item:
-            return false
-    return true
+            return False
+    return True
 
 def updateButtons(button):
     button.update()
@@ -56,13 +56,20 @@ class Button():
         self.message = action
     #keeps button updated
     def update(self):
-        startScreen.screen_item.blit(self.image, self.rect)
         startScreen.screen_item.blit(self.text, self.text_rect)
+
+    def init_image(self):
+        startScreen.screen_item.blit(self.image, self.rect)
+      
 
     #checks for clicks
     def checkForInput(self, position):
         if position[0] in range (self.rect.left, self.rect.right) and position[1] in range (self.rect.top, self.rect.bottom):
             print(self.message)
+            pg.draw.rect(startScreen.screen_item, "Black", pg.Rect(48, 48, 504, 404))
+            pg.draw.rect(startScreen.screen_item, "Grey", pg.Rect(50, 50, 500, 400))
+            pg.display.flip()
+  
     
     #checks for being hovered over. If so, changes colour
     def changeColour(self, position):
@@ -97,6 +104,14 @@ class startScreen(main):
 startScreen=startScreen(600,600,3,3,3)
 startScreen.screen_item.blit(bigLogo, (300,300))
 
+startScreen.screen_item.fill("white")
+startScreen.screen_item.blit(bigLogo, (0,0))
+startScreen.screen_item.blit(startScreen.title,(34,275))
+
+startScreen.startButton.init_image()
+startScreen.infoButton.init_image()
+startScreen.rulesButton.init_image()
+
 
 #game loop, checks for updates and events
 while True:
@@ -111,10 +126,9 @@ while True:
                startScreen.rulesButton.checkForInput(pg.mouse.get_pos())
                #updateButtons(button)
 
-    startScreen.screen_item.fill("white")
 
-    startScreen.screen_item.blit(bigLogo, (0,0))
-    startScreen.screen_item.blit(startScreen.title,(34,275))
+  
+
 
    # for button in buttonList:
     startScreen.startButton.update()
