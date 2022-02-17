@@ -7,9 +7,10 @@ import sys
 import pygame_textinput as pgtxt
 
 #initialises lists used in the program
-names = []
+names = ["joe"]
 enemies = []
 
+#username variable for text input 
 username=""
 
 #init running state
@@ -36,18 +37,20 @@ def nameCheck(name):
         names.append(item)
     namelist.close()
     for item in names:
+        print(item)
         if name == item:
-            return False
-    return True
+            return True
+    return False
 
-
+#update button method
 def updateButtons(button):
     button.update()
     button.changeColour(pg.mouse.get_pos())
     button.checkForInput(pg.mouse.get_pos())
 
-
+#Rectangle class
 class Rectangle():
+    #actually creates the box
     def __init__(self, x_pos, y_pos, x_size, y_size, colour, titleFont,
                  mainFont, title, body, screenID):
         exitCross = pg.image.load("cross.png")
@@ -76,6 +79,7 @@ class Rectangle():
             self.mainFont.render(self.body, True, "Black"), (175, 120))
         self.screenID.screen_item.blit(exitCross, (self.cross_x, self.cross_y))
 
+    #checks to see if mouse over exit button lol
     def update(self, position):
         if position[0] in range(self.cross_x,
                                 self.cross_x + 50) and position[1] in range(
@@ -83,7 +87,7 @@ class Rectangle():
             print("Click")
             initScreen()
 
-
+#Class that inherits from rectangle class above, pretty much the same but it features a text box for input
 class startWindow(Rectangle):
     def __init__(self, x_pos, y_pos, x_size, y_size, colour, titleFont,
                  mainFont, title, body, screenID):
@@ -91,6 +95,9 @@ class startWindow(Rectangle):
                          mainFont, title, body, screenID)
         pg.draw.rect(self.screenID.screen_item, "Black",pg.Rect(100,250,400,75))
         pg.draw.rect(self.screenID.screen_item, "White",pg.Rect(102,252,396,71))
+        pg.draw.rect(self.screenID.screen_item, "Black",pg.Rect(205,330,200,50))
+        pg.draw.rect(self.screenID.screen_item, "Green",pg.Rect(207,332,196,46))
+        self.screenID.screen_item.blit(self.titleFont.render("Continue", True, "Black"), (220, 340))
         self.Activated=False
     def boxUpdate(self, position):
         if position[0] in range(100,500) and position[1] in range(250,325):
@@ -101,10 +108,19 @@ class startWindow(Rectangle):
                 self.Activated=False
                 print("Deactivated!")
 
+    def buttonUpdate(self, position):
+        if position[0] in range (205,405) and position[1] in range(330,380):
+            print("click!")
+            return True
+
+    #takes in keyboard input and displays it on box
     def displayText(self,content):
         pg.draw.rect(self.screenID.screen_item, "White",pg.Rect(102,252,396,71))
         self.screenID.screen_item.blit(self.titleFont.render(content, True, "Black"), (110, 275))
-        
+
+    def clearScreen(self):
+        pg.draw.rect(self.screenID.screen_item, "White", pg.Rect(102,252,396,71))
+
 #button class
 class Button():
     #initialises button
@@ -198,6 +214,7 @@ startScreen = startScreen(600, 600, 3, 3, 3)
 startScreen.screen_item.blit(bigLogo, (300, 300))
 
 
+#resets screen to starting state
 def initScreen():
     startScreen.screen_item.fill("white")
     startScreen.screen_item.blit(bigLogo, (0, 0))
@@ -222,15 +239,27 @@ while True:
             startScreen.rulesButton.checkForInput(pg.mouse.get_pos())
             startScreen.startButton.startRect.update(pg.mouse.get_pos())
             startScreen.startButton.startRect.boxUpdate(pg.mouse.get_pos())
+            clicked=startScreen.startButton.startRect.buttonUpdate(pg.mouse.get_pos())
+            if clicked == True:
+                print(username)
+                startScreen.startButton.startRect.clearScreen()
         if event.type == pg.KEYDOWN and startScreen.startButton.startRect.Activated == True:
             if event.key == pg.K_RETURN:
                 print("ENTER")
+                print(username)
+                picked=nameCheck(username)
+                print(picked)
+                if picked == True:
+                    print("THIS HAS ALREADY BEEN PICKED HAHA LOSER")
+                else:
+                    print("Name Valid")
+                    startScreen.startButton.startRect.clearScreen()
             if event.key == pg.K_BACKSPACE:
                 username=username[:-1]
+                startScreen.startButton.startRect.displayText(username)
             else:
                 username += event.unicode
-            
-            startScreen.startButton.startRect.displayText(username)
+                startScreen.startButton.startRect.displayText(username)
 
 # for button in buttonList:
     startScreen.startButton.update()
