@@ -242,7 +242,13 @@ while True:
             clicked=startScreen.startButton.startRect.buttonUpdate(pg.mouse.get_pos())
             if clicked == True:
                 print(username)
-                startScreen.startButton.startRect.clearScreen()
+                picked=nameCheck(username)
+                print(picked)
+                if picked == True:
+                    print("THIS HAS ALREADY BEEN PICKED HAHA LOSER")
+                else:
+                    print("Name Valid")
+                    startScreen.startButton.startRect.clearScreen()
         if event.type == pg.KEYDOWN and startScreen.startButton.startRect.Activated == True:
             if event.key == pg.K_RETURN:
                 print("ENTER")
