@@ -5,12 +5,13 @@ global bigLogo
 logoIcon = pg.image.load("logo.png")
 logoIcon= pg.transform.scale(logoIcon, (40, 40))
 
-screen = pg.display.set_mode((1000,500))
+screen = pg.display.set_mode((1000,450))
 taken_coords = ["200:250,300:400","500:800,300:400"]
 points=0
 level=1
 bank=0
 name="Joe"
+health=900
 
 pg.init()
 
@@ -23,8 +24,6 @@ def hasCollided(taken,rect_x,rect_y):
         y=y.split(":")
         if rect_x  >= int(x[0]) and rect_x <= int(x[1]) and rect_y + 50 >= int(y[0]) and rect_y <= int(y[1]):
             return True
-        
-        
 
 class Rectangle():
     def __init__(self, x, y, l, h, screen, colour):
@@ -34,14 +33,14 @@ class Rectangle():
         self.h = h
         pg.draw.rect(screen, colour, pg.Rect(self.x, self.y, self.l, self.h))
 
-    
 class main:
     def __init__(self, windowX, windowY):
         self.screen = pg.display.set_mode((windowX, windowY))
         pg.display.set_caption("Discipline Tower Defence")
-        self.screen.fill("Black")
+        self.screen.fill("White")
         pg.display.flip()
-    def initialise(self,points,level,bank,name):
+
+    def initialise(self,points,level,bank,name,health):
         font=pg.font.SysFont("sans-serif",60)
         topBar=Rectangle(0,0,1000,40,self.screen,"Grey")
         self.screen.blit(logoIcon,(0,0))
@@ -49,11 +48,12 @@ class main:
         self.screen.blit(font.render(("Level "+str(level)),False,"Black"),(310,2))
         self.screen.blit(font.render(("$"+str(bank)),False,"Black"),(600,2))
         self.screen.blit(font.render(name,False,"Black"),(750,2))
+        progBarOutline=Rectangle(60,55,904,28,self.screen,"Black")
+        progBar=Rectangle(62,57,health,24,self.screen, "Green")
         
     def generateBlocks(self):
         rect1=Rectangle(200,300,50,100,self.screen,"Blue")
         rect2=Rectangle(500,300,300,100,self.screen,"Blue")
-
 
 class enemySprite(pg.sprite.Sprite):
     def __init__(self, x, y, v, screen):
@@ -65,19 +65,20 @@ class enemySprite(pg.sprite.Sprite):
         self.rect.y = y
         self.speed = v
         #screen.blit(self.image, (x,y))
+
     def moveRandomDown(self,taken):
         collided=hasCollided(taken, self.rect.x, self.rect.y)
         if collided == True:
             #print("Moving around")
             self.rect.x = self.rect.x + r.randint(0,5)
-        elif self.rect.y + 50 > 750:
+        elif self.rect.y + 50 > 600:
             self.kill()
         else:
             #print("Moving Down")
             self.rect.y = self.rect.y + r.randint(0,5)
-    
+
 sprites = pg.sprite.Group()
-init_screen=main(1000,750)
+init_screen=main(1000,600)
 
 e1=enemySprite(100,200,10,init_screen.screen)
 e2=enemySprite(200,200,10,init_screen.screen)
@@ -94,7 +95,7 @@ sprites.add(e1,e2,e3,e4,e5,e6,e7,e8,e9)
 for item in sprites:
     print(item.rect.x)
 
-screen.fill("Black")
+screen.fill("White")
 sprites.draw(screen)
 pg.display.update()
 print(sprites.sprites())
@@ -113,8 +114,8 @@ while True:
 
     for item in sprites:               
         item.moveRandomDown(taken_coords)
-    screen.fill("Black")
-    init_screen.initialise(points,level,bank,name)
+    screen.fill("White")
+    init_screen.initialise(points,level,bank,name,health)
     init_screen.generateBlocks()
     sprites.draw(screen)
     pg.display.update()
