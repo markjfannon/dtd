@@ -39,23 +39,29 @@ class Turret(Rectangle):
     def __init__(self,x,y,size,screen,colour):
         self.x = x
         self.y = y
+        self.screen = screen
+        self.bullets = pg.sprite.Group()
         super().__init__(x, y, size, size, screen, "Black")
         pg.draw.rect(screen, colour, pg.Rect(self.x+3, self.y+3, self.l-6, self.h-6))
         pg.draw.rect(screen,"Black", pg.Rect(self.x+size/2 - 6, self.y+4, 12 ,size/2))
         pg.draw.circle(screen, "Black", (self.x+size/2,self.y+size/2), 15)
 
+    def bulletGen(self):
+        bulletTest=Bullet(self.screen,50,100)
+        self.bullets.add(bulletTest)
 
 class Bullet(pg.sprite.Sprite):
     def __init__(self, screen, x, y):
         super().__init__()
         #self.image = pg.draw.rect(screen, "Orange", pg.Rect(x, y, 7, 10))
-        self.image = pg.transform.scale((pg.image.load("bullet.png")),(15,30))
+        self.image = pg.transform.scale((pg.image.load("bullet.png")),(10,30))
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
 
     def move(self):
-        self.rect.y-20
+        self.rect.y-1
+        print("moved")
 
 class main:
     def __init__(self, windowX, windowY):
@@ -63,6 +69,7 @@ class main:
         pg.display.set_caption("Discipline Tower Defence")
         self.screen.fill("White")
         pg.display.flip()
+        self.turrets=[]
 
     def initialise(self,points,level,bank,name,health):
         font=pg.font.SysFont("sans-serif",60)
@@ -78,9 +85,9 @@ class main:
     def generateBlocks(self):
         rect1=Rectangle(200,300,50,100,self.screen,"Blue")
         rect2=Rectangle(500,300,300,100,self.screen,"Blue")
-        self.turret1=Turret(50,450,100,self.screen,"Red")
-        self.turret2=Turret(850,450,100,self.screen,"Red")
-        self.turret3=Turret(450,300,100,self.screen,"Red")
+        self.turrets = [Turret(50,450,100,self.screen,"Red"),Turret(850,450,100,self.screen,"Red"),Turret(450,300,100,self.screen,"Red")]
+        
+        
 
 class enemySprite(pg.sprite.Sprite):
     def __init__(self, x, y, v, screen):
@@ -127,9 +134,11 @@ sprites.add(e1,e2,e3,e4,e5,e6,e7,e8,e9)
 
 screen.fill("White")
 sprites.draw(screen)
-bullets.draw(screen)
 pg.display.update()
 print(sprites.sprites())
+for instance in init_screen.turrets:
+        instance.bulletGen()
+
 
 while True:
     #for event in pg.event.get():
@@ -145,12 +154,18 @@ while True:
 
     for item in sprites:               
         item.moveRandomDown(taken_coords)
+    for instance in init_screen.turrets:
+        print("Loop1")
+        for item in instance.bullets:
+            print("Loop2")
+            item.move()
     screen.fill("White")
     init_screen.initialise(points,level,bank,name,health)
     init_screen.generateBlocks()
     #bullets.add(init_screen.turret1.bullet1)
     sprites.draw(screen)
-    bullets.draw(screen)
+    for instance in init_screen.turrets:
+        instance.bullets.draw(init_screen.screen)
     pg.display.update()
     clock = pg.time.Clock()
     clock.tick(20)
