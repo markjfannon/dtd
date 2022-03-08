@@ -6,11 +6,13 @@ logoIcon = pg.image.load("logo.png")
 logoIcon= pg.transform.scale(logoIcon, (40, 40))
 
 screen = pg.display.set_mode((1000,450))
-taken_coords = ["200:250,300:400","500:800,300:400"]
+taken_coords = ["200:250,300:400","500:800,300:400","50:150,450:550","850:950,450:550","450:550,300:400"]
 points=0
 level=1
 bank=0
 name="Joe"
+
+global health
 health=900
 
 pg.init()
@@ -33,6 +35,28 @@ class Rectangle():
         self.h = h
         pg.draw.rect(screen, colour, pg.Rect(self.x, self.y, self.l, self.h))
 
+class Turret(Rectangle):
+    def __init__(self,x,y,size,screen,colour):
+        self.x = x
+        self.y = y
+        super().__init__(x, y, size, size, screen, "Black")
+        pg.draw.rect(screen, colour, pg.Rect(self.x+3, self.y+3, self.l-6, self.h-6))
+        pg.draw.rect(screen,"Black", pg.Rect(self.x+size/2 - 6, self.y+4, 12 ,size/2))
+        pg.draw.circle(screen, "Black", (self.x+size/2,self.y+size/2), 15)
+
+
+class Bullet(pg.sprite.Sprite):
+    def __init__(self, screen, x, y):
+        super().__init__()
+        #self.image = pg.draw.rect(screen, "Orange", pg.Rect(x, y, 7, 10))
+        self.image = pg.transform.scale((pg.image.load("bullet.png")),(15,30))
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+
+    def move(self):
+        self.rect.y-20
+
 class main:
     def __init__(self, windowX, windowY):
         self.screen = pg.display.set_mode((windowX, windowY))
@@ -54,6 +78,9 @@ class main:
     def generateBlocks(self):
         rect1=Rectangle(200,300,50,100,self.screen,"Blue")
         rect2=Rectangle(500,300,300,100,self.screen,"Blue")
+        self.turret1=Turret(50,450,100,self.screen,"Red")
+        self.turret2=Turret(850,450,100,self.screen,"Red")
+        self.turret3=Turret(450,300,100,self.screen,"Red")
 
 class enemySprite(pg.sprite.Sprite):
     def __init__(self, x, y, v, screen):
@@ -72,12 +99,15 @@ class enemySprite(pg.sprite.Sprite):
             #print("Moving around")
             self.rect.x = self.rect.x + r.randint(0,5)
         elif self.rect.y + 50 > 600:
+            global health
+            health=health-20
             self.kill()
         else:
             #print("Moving Down")
             self.rect.y = self.rect.y + r.randint(0,5)
 
 sprites = pg.sprite.Group()
+bullets = pg.sprite.Group()
 init_screen=main(1000,600)
 
 e1=enemySprite(100,200,10,init_screen.screen)
@@ -92,11 +122,12 @@ e9=enemySprite(900,200,10,init_screen.screen)
 
 sprites.add(e1,e2,e3,e4,e5,e6,e7,e8,e9)
 
-for item in sprites:
-    print(item.rect.x)
+#for item in sprites:
+    #print(item.rect.x)
 
 screen.fill("White")
 sprites.draw(screen)
+bullets.draw(screen)
 pg.display.update()
 print(sprites.sprites())
 
@@ -117,7 +148,9 @@ while True:
     screen.fill("White")
     init_screen.initialise(points,level,bank,name,health)
     init_screen.generateBlocks()
+    #bullets.add(init_screen.turret1.bullet1)
     sprites.draw(screen)
+    bullets.draw(screen)
     pg.display.update()
     clock = pg.time.Clock()
     clock.tick(20)
