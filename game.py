@@ -7,6 +7,7 @@ logoIcon= pg.transform.scale(logoIcon, (40, 40))
 
 screen = pg.display.set_mode((1000,450))
 taken_coords = ["200:250,300:400","500:800,300:400","50:150,450:550","850:950,450:550","450:550,300:400"]
+enemy_coords = []
 points=0
 level=1
 bank=0
@@ -25,6 +26,12 @@ def hasCollided(taken,rect_x,rect_y):
         x=x.split(":")
         y=y.split(":")
         if rect_x  >= int(x[0]) and rect_x <= int(x[1]) and rect_y + 50 >= int(y[0]) and rect_y <= int(y[1]):
+            return True
+
+def hasHit(taken,bullet_x,bullet_y):
+    for item in taken:
+        split=item.split(",")
+        if bullet_x + 10 >= split[0] and bullet_x <= split[0]+50 and bullet_y <= split[1] and bullet_y >= split[1] + 50:
             return True
 
 class Rectangle():
@@ -46,9 +53,6 @@ class Turret(Rectangle):
         pg.draw.rect(screen,"Black", pg.Rect(self.x+size/2 - 6, self.y+4, 12 ,size/2))
         pg.draw.circle(screen, "Black", (self.x+size/2,self.y+size/2), 15)
 
-    def bulletGen(self):
-        bulletTest=Bullet(self.screen,50,100)
-        self.bullets.add(bulletTest)
 
 class Bullet(pg.sprite.Sprite):
     def __init__(self, screen, x, y):
@@ -59,8 +63,11 @@ class Bullet(pg.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
 
-    def move(self):
-        self.rect.y-1
+    def move(self, coords):
+        c=hasCollided(coords,self.rect.x,self.rect.y)
+        if c == True:
+            print("Hit")
+        self.rect.y=self.rect.y - 1
         print("moved")
 
 class main:
@@ -119,7 +126,7 @@ init_screen=main(1000,600)
 
 e1=enemySprite(100,200,10,init_screen.screen)
 e2=enemySprite(200,200,10,init_screen.screen)
-e3=enemySprite(300,200,10,init_screen.screen)
+e3=enemySprite(300,300,10,init_screen.screen)
 e4=enemySprite(400,200,10,init_screen.screen)
 e5=enemySprite(500,200,10,init_screen.screen)
 e6=enemySprite(600,200,10,init_screen.screen)
@@ -127,17 +134,21 @@ e7=enemySprite(700,200,10,init_screen.screen)
 e8=enemySprite(800,200,10,init_screen.screen)
 e9=enemySprite(900,200,10,init_screen.screen)
 
+b1=Bullet(init_screen.screen,310,400)
+
+
 sprites.add(e1,e2,e3,e4,e5,e6,e7,e8,e9)
+bullets.add(b1)
 
 #for item in sprites:
     #print(item.rect.x)
 
 screen.fill("White")
 sprites.draw(screen)
+bullets.draw(screen)
 pg.display.update()
 print(sprites.sprites())
-for instance in init_screen.turrets:
-        instance.bulletGen()
+
 
 
 while True:
@@ -154,18 +165,17 @@ while True:
 
     for item in sprites:               
         item.moveRandomDown(taken_coords)
-    for instance in init_screen.turrets:
-        print("Loop1")
-        for item in instance.bullets:
-            print("Loop2")
-            item.move()
+        enemy_coords= []
+        enemy_coords.append(str(item.rect.x)+","+str(item.rect.x))
+    for item in bullets:
+        item.move(enemy_coords)
+        
     screen.fill("White")
     init_screen.initialise(points,level,bank,name,health)
     init_screen.generateBlocks()
     #bullets.add(init_screen.turret1.bullet1)
     sprites.draw(screen)
-    for instance in init_screen.turrets:
-        instance.bullets.draw(init_screen.screen)
+    bullets.draw(screen)
     pg.display.update()
     clock = pg.time.Clock()
     clock.tick(20)
