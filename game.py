@@ -6,7 +6,7 @@ logoIcon = pg.image.load("logo.png")
 logoIcon= pg.transform.scale(logoIcon, (40, 40))
 
 screen = pg.display.set_mode((1000,450))
-taken_coords = ["200:250,300:400","500:800,300:400","50:150,450:550","850:950,450:550","450:550,300:400"]
+taken_coords = ["50:150,450:550","850:950,450:550","450:550,300:400"]
 enemy_coords = []
 points=0
 level=1
@@ -29,10 +29,33 @@ def hasCollided(taken,rect_x,rect_y):
             return True
 
 def hasHit(taken,bullet_x,bullet_y):
+    hit=False
+    #print(taken)
     for item in taken:
         split=item.split(",")
-        if bullet_x + 10 >= split[0] and bullet_x <= split[0]+50 and bullet_y <= split[1] and bullet_y >= split[1] + 50:
-            return True
+        #print(split[0]+" - "+str(bullet_x))
+        #print(split[1]+" - "+str(bullet_y))
+        #if bullet_x + 10 >= int(split[0]) and bullet_x <= int(split[0]+50) and bullet_y <= int(split[1]) and bullet_y >= int(split[1]) + 50:
+            #return True
+        if bullet_x >= int(split[0]) and bullet_x <= int(split[0])+50 and bullet_y >= int(split[1]) and bullet_y <= int(split[1])+50:
+            hit=True
+            break
+    if hit == True:
+        for item in sprites:
+            #print(str(item.rect.x)+" - "+split([0]))
+            #print(str(item.rect.y)+" - "+split([1]))
+            if item.rect.x == int(split[0]) and item.rect.y == int(split[1]):
+                item.kill()
+                global points
+                global bank
+                points=points+10
+                bank=bank+r.randint(30,50)
+                
+        return True, split[0], split[1]
+    else:
+        return False, 0, 0
+
+            
 
 class Rectangle():
     def __init__(self, x, y, l, h, screen, colour):
@@ -46,12 +69,31 @@ class Turret(Rectangle):
     def __init__(self,x,y,size,screen,colour):
         self.x = x
         self.y = y
+        self.size=size
         self.screen = screen
         self.bullets = pg.sprite.Group()
         super().__init__(x, y, size, size, screen, "Black")
         pg.draw.rect(screen, colour, pg.Rect(self.x+3, self.y+3, self.l-6, self.h-6))
         pg.draw.rect(screen,"Black", pg.Rect(self.x+size/2 - 6, self.y+4, 12 ,size/2))
         pg.draw.circle(screen, "Black", (self.x+size/2,self.y+size/2), 15)
+    def shoot(self):
+        los=False
+        global enemy_coords
+        for item in enemy_coords:
+            enemy=item.split(",")
+            print(enemy)
+            if int(enemy[0]) > self.x and int(enemy[0]) < self.x+self.size  and int(enemy[1]) > 200:
+                print((item.split(","))[0])
+                los=True
+                break
+        global bullets
+        if len(bullets) > 50:
+            pass
+        elif los == False:
+            pass
+        else:
+            bullets.add(Bullet(self.screen,r.randint(self.x,self.x+90),self.y))
+            print("generated")
 
 
 class Bullet(pg.sprite.Sprite):
@@ -64,11 +106,16 @@ class Bullet(pg.sprite.Sprite):
         self.rect.y = y
 
     def move(self, coords):
-        c=hasCollided(coords,self.rect.x,self.rect.y)
-        if c == True:
-            print("Hit")
-        self.rect.y=self.rect.y - 1
-        print("moved")
+        if self.rect.y <= 40:
+            self.kill()
+        else:
+            self.enemy_x=0
+            self.enemy_y=0
+            c, self.enemy_x, self.enemy_y = hasHit(coords,self.rect.x,self.rect.y)
+            if c == True:
+                print("Hit")
+                self.kill()
+            self.rect.y=self.rect.y - 5
 
 class main:
     def __init__(self, windowX, windowY):
@@ -90,8 +137,8 @@ class main:
         progBar=Rectangle(62,57,health,24,self.screen, "Green")
         
     def generateBlocks(self):
-        rect1=Rectangle(200,300,50,100,self.screen,"Blue")
-        rect2=Rectangle(500,300,300,100,self.screen,"Blue")
+        #rect1=Rectangle(200,300,50,100,self.screen,"Blue")
+        #rect2=Rectangle(500,300,300,100,self.screen,"Blue")
         self.turrets = [Turret(50,450,100,self.screen,"Red"),Turret(850,450,100,self.screen,"Red"),Turret(450,300,100,self.screen,"Red")]
         
         
@@ -105,6 +152,7 @@ class enemySprite(pg.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
         self.speed = v
+        self.hit = False 
         #screen.blit(self.image, (x,y))
 
     def moveRandomDown(self,taken):
@@ -123,6 +171,7 @@ class enemySprite(pg.sprite.Sprite):
 sprites = pg.sprite.Group()
 bullets = pg.sprite.Group()
 init_screen=main(1000,600)
+init_screen.generateBlocks()
 
 e1=enemySprite(100,200,10,init_screen.screen)
 e2=enemySprite(200,200,10,init_screen.screen)
@@ -134,22 +183,19 @@ e7=enemySprite(700,200,10,init_screen.screen)
 e8=enemySprite(800,200,10,init_screen.screen)
 e9=enemySprite(900,200,10,init_screen.screen)
 
-b1=Bullet(init_screen.screen,310,400)
-
+b1=Bullet(init_screen.screen,311,400)
+b2=Bullet(init_screen.screen,400,400)
 
 sprites.add(e1,e2,e3,e4,e5,e6,e7,e8,e9)
-bullets.add(b1)
 
-#for item in sprites:
-    #print(item.rect.x)
+for item in init_screen.turrets:
+    item.shoot()
 
 screen.fill("White")
 sprites.draw(screen)
 bullets.draw(screen)
 pg.display.update()
 print(sprites.sprites())
-
-
 
 while True:
     #for event in pg.event.get():
@@ -163,13 +209,17 @@ while True:
                 #screen.fill("Black")
                 #print("DOWN")
 
+    enemy_coords= []
     for item in sprites:               
         item.moveRandomDown(taken_coords)
-        enemy_coords= []
-        enemy_coords.append(str(item.rect.x)+","+str(item.rect.x))
+        enemy_coords.append(str(item.rect.x)+","+str(item.rect.y))
+    for item in init_screen.turrets:
+        item.shoot()
     for item in bullets:
         item.move(enemy_coords)
-        
+    for item in sprites:
+        if item.hit == True:
+            item.kill()
     screen.fill("White")
     init_screen.initialise(points,level,bank,name,health)
     init_screen.generateBlocks()
