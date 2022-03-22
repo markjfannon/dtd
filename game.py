@@ -65,8 +65,8 @@ class Rectangle():
 
 class Shop():
     def __init__(self, x, y, screen):
-        shopfont=pg.font.SysFont("sans-serif",30)
-        bodyfont=pg.font.SysFont("sans-serif",25)
+        self.shopfont=pg.font.SysFont("sans-serif",30)
+        self.bodyfont=pg.font.SysFont("sans-serif",25)
         exitCross = pg.image.load("cross.png")
         exitCross = pg.transform.scale(exitCross, (50, 50))
         self.x = x
@@ -83,20 +83,45 @@ class Shop():
         item1 = [Rectangle(self.x+20, self.y+70, 100, 100, self.screen, "Black"),Rectangle(self.x+22, self.y+72, 96, 96, self.screen, "Brown")]
         item2 = [Rectangle(self.x+20, self.y+200, 100, 100, self.screen, "Black"),Rectangle(self.x+22, self.y+202, 96, 96, self.screen, "Yellow")]
         item3 = [Rectangle(self.x+20, self.y+335, 100, 100, self.screen, "Black"),Rectangle(self.x+22, self.y+337, 96, 96, self.screen, "Blue")]
-        self.screen.blit(shopfont.render(("Bronze Turret"),False,"Black"),(self.x+145,self.y+75))
-        self.screen.blit(bodyfont.render(("This turret does a small amount of damage"),False,"Black"),(self.x+145,self.y+100))
+        self.screen.blit(self.shopfont.render(("Bronze Turret"),False,"Black"),(self.x+145,self.y+75))
+        self.screen.blit(self.bodyfont.render(("This turret does a small amount of damage"),False,"Black"),(self.x+145,self.y+100))
+        self.screen.blit(self.shopfont.render(("Silver Turret"),False,"Black"),(self.x+145,self.y+210))
+        self.screen.blit(self.bodyfont.render(("This turret does a medium amount of damage"),False,"Black"),(self.x+145,self.y+235))
+        self.screen.blit(self.shopfont.render(("Chrome Turret"),False,"Black"),(self.x+145,self.y+340))
+        self.screen.blit(self.bodyfont.render(("This turret does a large amount of damage"),False,"Black"),(self.x+145,self.y+365))
+        self.screen.blit(self.shopfont.render(("$100"),False,"Black"),(self.x+self.l-50,self.y+160))
+        self.screen.blit(self.shopfont.render(("$200"),False,"Black"),(self.x+self.l-50,self.y+290))
+        self.screen.blit(self.shopfont.render(("$500"),False,"Black"),(self.x+self.l-50,self.y+420))
+        buy1 = [Rectangle(self.x+145,self.y+130,90,40,self.screen,"Black"),Rectangle(self.x+147,self.y+132,86,36,self.screen,"Green")]
+        buy2 = [Rectangle(self.x+145,self.y+260,90,40,self.screen,"Black"),Rectangle(self.x+147,self.y+262,86,36,self.screen,"Green")]
+        buy3 = [Rectangle(self.x+145,self.y+394,90,40,self.screen,"Black"),Rectangle(self.x+147,self.y+396,86,36,self.screen,"Green")]
+        self.screen.blit(self.shopfont.render(("Buy"),False,"Black"),(self.x+165,self.y+140))
+        self.screen.blit(self.shopfont.render(("Buy"),False,"Black"),(self.x+165,self.y+270))
+        self.screen.blit(self.shopfont.render(("Buy"),False,"Black"),(self.x+165,self.y+404))
         
-        
-        
-        
-        
-
     def update (self,position):
         if position[0] in range(self.x+self.l-50,self.x+self.l) and position[1] in range(self.y, self.y + 50):
             global shop, running
             shop=False
             running=True
 
+    def isOver (self, position):
+        if position[0] in range(self.x+145,self.x+235) and position[1] in range(self.y+130,self.y+170):
+            self.screen.blit(self.shopfont.render(("Buy"),False,"Red"),(self.x+165,self.y+140))
+        elif position[0] in range(self.x+145,self.x+235) and position[1] in range(self.y+260,self.y+300):
+            self.screen.blit(self.shopfont.render(("Buy"),False,"Red"),(self.x+165,self.y+270))
+        elif position[0] in range(self.x+145,self.x+235) and position[1] in range(self.y+394,self.y+434):
+            self.screen.blit(self.shopfont.render(("Buy"),False,"Red"),(self.x+165,self.y+404))
+
+    def click (self, position):
+        global bank
+        if position[0] in range(self.x+145,self.x+235) and position[1] in range(self.y+130,self.y+170):
+            bank=bank-100
+        elif position[0] in range(self.x+145,self.x+235) and position[1] in range(self.y+260,self.y+300):
+            bank=bank-200
+        elif position[0] in range(self.x+145,self.x+235) and position[1] in range(self.y+394,self.y+434):
+            bank=bank-500
+        
 class Turret(Rectangle):
     def __init__(self,x,y,size,screen,colour, v):
         self.x = x
@@ -243,7 +268,10 @@ while True:
                 print("shop!")
                 shop=True
                 running=False
-            shop1.update(pos)
+            if shop == True:
+                shop1.update(pos)
+                shop1.click(pos)
+                
     
     if len(sprites) > 10:
         pass
@@ -270,6 +298,7 @@ while True:
     bullets.draw(screen)
     if shop == True:
         shop1=Shop(20,35,init_screen.screen)
+        shop1.isOver(pg.mouse.get_pos())
         pg.display.flip()
     pg.display.update()
     clock = pg.time.Clock()
