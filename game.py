@@ -6,6 +6,12 @@ import random as r
 logoIcon = pg.image.load("logo.png")
 logoIcon= pg.transform.scale(logoIcon, (40, 40))
 
+#sets name
+nameOpen=open("chosenname.txt","r")
+for item in nameOpen:
+    name=item
+nameOpen.close()
+
 #initialises variables and lists - taken_coords refers to the coordinate points occupied by turrets, enemy_coords refers to the coordinate points occupied by evil sprites
 screen = pg.display.set_mode((1000,450))
 taken_coords = ["50:150,450:550","850:950,450:550","450:550,300:400"]
@@ -14,8 +20,7 @@ boughtTurrets=[]
 points=0
 level=1
 bank=0
-name="Joe"
-health=900
+health=50
 spawncount=0
 spawnlimit=30
 currentlimit=10
@@ -260,14 +265,14 @@ class main:
 
     #actually creates visuals on screen - top bar, buttons, text
     def initialise(self,points,level,bank,name,health):
-        font=pg.font.SysFont("sans-serif",60)
+        self.font=pg.font.SysFont("sans-serif",60)
         shopfont=pg.font.SysFont("sans-serif",50)
         topBar=Rectangle(0,0,1000,40,self.screen,"Grey")
         self.screen.blit(logoIcon,(0,0))
-        self.screen.blit(font.render(str(points),False,"Black"),(160,2))
-        self.screen.blit(font.render(("Level "+str(level)),False,"Black"),(310,2))
-        self.screen.blit(font.render(("$"+str(bank)),False,"Black"),(600,2))
-        self.screen.blit(font.render(name,False,"Black"),(750,2))
+        self.screen.blit(self.font.render(str(points),False,"Black"),(160,2))
+        self.screen.blit(self.font.render(("Level "+str(level)),False,"Black"),(310,2))
+        self.screen.blit(self.font.render(("$"+str(bank)),False,"Black"),(600,2))
+        self.screen.blit(self.font.render(name,False,"Black"),(750,2))
         shopButton=Rectangle(910,0,90,40,self.screen,"Black")
         shopButtonInner=Rectangle(912,2,86,36,self.screen,"Green")
         self.screen.blit(shopfont.render("Shop",False,"Black"),(912,2))
@@ -360,7 +365,7 @@ while True:
         spawncount = 0
         spawnlimit = spawnlimit + 20
         currentlimit = currentlimit + 5
-        level = level +1
+        level = level + 1
         
     enemy_coords= []
 
@@ -390,6 +395,17 @@ while True:
         shop1=Shop(20,35,init_screen.screen)
         shop1.isOver(pg.mouse.get_pos())
         pg.display.flip()
+    if health <= 0:
+        for item in bullets:
+            item.kill()
+        for item in sprites:
+            item.kill()
+        print("Game Over")
+        finalWindow = [Rectangle(100,50,750,500,init_screen.screen,"Black"),Rectangle(102,52,746,496,init_screen.screen,"Grey")]
+        init_screen.screen.blit(init_screen.font.render("Leaderboard",True,"Black"),(325,55))
+                                
+   
     pg.display.update()
     clock = pg.time.Clock()
     clock.tick(20)
+

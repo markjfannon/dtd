@@ -243,12 +243,15 @@ while True:
             if clicked == True:
                 print(username)
                 picked=nameCheck(username)
-                print(picked)
                 if picked == True:
                     print("THIS HAS ALREADY BEEN PICKED HAHA LOSER")
                 else:
                     print("Name Valid")
-                    startScreen.startButton.startRect.clearScreen()
+                    nameWrite=open("chosenname.txt","w")
+                    nameWrite.write(username)
+                    nameWrite.close()
+                    os.system('python3 game.py')
+                    exit()
         if event.type == pg.KEYDOWN and startScreen.startButton.startRect.Activated == True:
             if event.key == pg.K_RETURN:
                 print("ENTER")
@@ -259,7 +262,11 @@ while True:
                     print("THIS HAS ALREADY BEEN PICKED HAHA LOSER")
                 else:
                     print("Name Valid")
-                    startScreen.startButton.startRect.clearScreen()
+                    nameWrite=open("chosenname.txt","w")
+                    nameWrite.write(username)
+                    nameWrite.close()
+                    os.system('python3 game.py')
+                    exit()
             if event.key == pg.K_BACKSPACE:
                 username=username[:-1]
                 startScreen.startButton.startRect.displayText(username)
